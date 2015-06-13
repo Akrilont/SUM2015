@@ -1,13 +1,17 @@
 /* FILENAME: LOADOBJ.C
  * PROGRAMMER: DK6
- * PURPOSE: Load 3D model from *.OBJ files.
+ * PURPOSE: Load 3D nmodel from *.OBJ files.
  * LAST UPDATE: 06.06.2015
  */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
-#include "vec.h"
+#include "anim.h"
+
+
+extern BOOL IsWire, IsRainbow, IsRed, IsPause;
 
 /* Global model data */
 
@@ -16,16 +20,29 @@ VEC *ObjV; /* Vertex coordinates */
 INT ObjNumOfV; /* Number of model vertices */
 
 /* Draw object functioln.
- * ARGUMENTS: None.
+ * ARGUMENTS:
+ *   - context of the window:
+ *       HDC hDC;
+ *   - the size of the window:
+ *       INT W, H;
  * RETURNS: None.
  */
-VOID ObjDraw( VOID )
+VOID ObjDraw( HDC hDC, INT X, INT Y, DWORD Color, DK6ANIM *Ani )
 {
   INT i;
+  DBL x = sin(30);
 
+  srand(30);
   for (i = 0; i < ObjNumOfV; i++)
   {
-    SetPixel(hDC, Obj[],)
+    /* ?????? ????? ObjV[i] */
+    if (!Ani->IsPause)
+      ObjV[i] = VectorTransform(ObjV[i], MatrMulMatr(MatrRotateY(sin(Ani->Time * 0.5)), MatrRotateX(sin(Ani->Time * 3))));
+    else
+      ObjV[i] = VectorTransform(ObjV[i], MatrIdentity());
+
+    SetDCBrushColor(hDC, Color);
+    Ellipse(hDC,X + ObjV[i].X - 4, Y - ObjV[i].Y - 4, X + ObjV[i].X + 4, Y - ObjV[i].Y + 4);
   }
 
 } /* End of 'ObjDraw' function */
@@ -70,6 +87,7 @@ BOOL ObjLoad( CHAR *FileName )
     {
       sscanf(Buf + 2, "%lf%lf%lf",
         &ObjV[nv].X, &ObjV[nv].Y, &ObjV[nv].Z);
+      ObjV[nv] = VecMulNum(ObjV[nv], 40);
       nv++;
     }
   }
